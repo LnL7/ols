@@ -1172,6 +1172,11 @@ internal_resolve_type_identifier :: proc(ast_context: ^AstContext, node: ast.Ide
 		}
 	}
 
+	if symbol, ok := lookup(node.name, ast_context.current_package); ok {
+		return resolve_symbol_return(ast_context, symbol)
+	}
+
+
 	for imp in ast_context.imports {
 		if strings.compare(imp.base, node.name) == 0 {
 			symbol := Symbol {
@@ -1415,11 +1420,6 @@ internal_resolve_type_identifier :: proc(ast_context: ^AstContext, node: ast.Ide
 			if symbol, ok := lookup(node.name, "$builtin"); ok {
 				return resolve_symbol_return(ast_context, symbol)
 			}
-		}
-
-		//last option is to check the index
-		if symbol, ok := lookup(node.name, ast_context.current_package); ok {
-			return resolve_symbol_return(ast_context, symbol)
 		}
 
 		if !is_runtime {
