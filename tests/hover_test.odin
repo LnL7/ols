@@ -309,6 +309,38 @@ ast_hover_struct_field_selector_completion :: proc(t: ^testing.T) {
 	test.expect_hover(t, &source, "my_package.My_Struct: struct")
 }
 
+@(test)
+ast_hover_on_proc_with_same_package_name :: proc(t: ^testing.T) {
+	packages := make([dynamic]test.Package, context.temp_allocator)
+
+	append(
+		&packages,
+		test.Package {
+			pkg = "my_package",
+			source = `package my_package
+		my_package :: proc(number: int) -> int {
+			return number + 1
+		}
+		`,
+		},
+	)
+
+	source := test.Source {
+		main     = `package test
+
+		import "my_package"
+
+		test :: proc () -> bool {
+			n := my_package.my_packa{*}ge()
+			return true
+		}
+		`,
+		packages = packages[:],
+	}
+
+	test.expect_hover(t, &source, "my_package.my_package: proc(number: int) -> int")
+}
+
 /*
 TODO: Allow for testing multiple files
 */
